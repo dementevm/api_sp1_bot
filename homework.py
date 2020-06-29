@@ -18,13 +18,16 @@ BOT = telegram.Bot(token=TELEGRAM_TOKEN)
 
 
 def parse_homework_status(homework):
-    homework_name = homework['homework_name']
+    homework_name = homework.get('homework_name')
     if homework_name is None:
         send_message('ValueError: Homework name is None. Bot shuts down')
+        logging.error('ValueError: Homework name is None. Bot shuts down')
         raise ValueError('Homework name is None')
 
     if homework.get('status') is None:
+        logging.error('Homework status in None')
         raise ValueError('Homework status in None')
+
     if homework.get('status') == 'rejected':
         verdict = 'К сожалению в работе нашлись ошибки.'
     elif homework.get('status') == 'approved':
@@ -32,6 +35,7 @@ def parse_homework_status(homework):
                   'уроку.'
     else:
         send_message('Unknown homework status. Bot shuts down')
+        logging.error('Unknown homework status')
         raise ValueError('Unknown homework status')
     return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
 
@@ -69,7 +73,7 @@ def main():
 
         except Exception as e:
             send_message(f'Error: {e}')
-            logging.warning(f'Бот упал с ошибкой: {e}')
+            logging.exception(f'Бот упал с ошибкой: {e}')
             time.sleep(5)
             continue
 
